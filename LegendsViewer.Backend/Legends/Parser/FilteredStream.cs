@@ -3,6 +3,7 @@
 public class FilteredStream : Stream
 {
     private readonly Stream _baseStream;
+    private bool _disposed = false;
 
     public FilteredStream(Stream baseStream)
     {
@@ -26,28 +27,17 @@ public class FilteredStream : Stream
 
     public override int Read(byte[] buffer, int offset, int count)
     {
-        byte[] tempBuffer = new byte[count];
-        int bytesRead = _baseStream.Read(tempBuffer, 0, count);
-
+        int bytesRead = _baseStream.Read(buffer, offset, count);
         if (bytesRead == 0) return 0;
 
-        int wrote = 0;
         for (int i = 0; i < bytesRead; i++)
         {
-            if (tempBuffer[i] < 32)
+            if (buffer[offset + i] < 32)
             {
-                // Replace non-printable characters with a space (ASCII 32)
-                buffer[offset + wrote] = (byte)' ';
+                buffer[offset + i] = (byte)' ';
             }
-            else
-            {
-                buffer[offset + wrote] = tempBuffer[i];
-            }
-
-            wrote++;
         }
-
-        return wrote;
+        return bytesRead;
     }
 
     public override long Seek(long offset, SeekOrigin origin)
@@ -63,5 +53,18 @@ public class FilteredStream : Stream
     public override void Write(byte[] buffer, int offset, int count)
     {
         _baseStream.Write(buffer, offset, count);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _baseStream.Dispose();
+            }
+            _disposed = true;
+            base.Dispose(disposing);
+        }
     }
 }

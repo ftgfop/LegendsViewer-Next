@@ -1,3 +1,4 @@
+using System;
 using System.Data;
 using System.Xml;
 using LegendsViewer.Backend.Legends.Enums;
@@ -17,12 +18,14 @@ public class XmlParser : IDisposable
 
     private string _currentItemName = "";
     private readonly XmlPlusParser? _xmlPlusParser;
+    protected readonly Stream _xmlStream;
 
     protected XmlParser(World world, string xmlFile)
     {
         World = world;
+        _xmlStream = new FilteredStream(new FileStream(xmlFile, FileMode.Open, FileAccess.Read, FileShare.Read));
         XmlReader = XmlReader.Create(
-            new FilteredStream(new FileStream(xmlFile, FileMode.Open)),
+            _xmlStream,
             new XmlReaderSettings { Async = true, IgnoreWhitespace = true, IgnoreComments = true, IgnoreProcessingInstructions = true });
     }
 
@@ -1194,6 +1197,7 @@ public class XmlParser : IDisposable
         {
             XmlReader.Close();
             _xmlPlusParser?.Dispose();
+            _xmlStream?.Dispose();
         }
     }
 }
