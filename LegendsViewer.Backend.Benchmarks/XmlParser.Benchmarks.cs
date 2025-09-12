@@ -19,11 +19,17 @@ public class XmlParserBenchmarks
     {
         // Register code page provider for legacy encodings (e.g., CP437)
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-        // Use absolute paths for test data files
-        var absXmlFile = @"C:\Users\Thomas Svoboda\source\repos\LegendsViewer-Next\LegendsViewer.Backend.Tests\TestData\Xah_Atho-00005-01-01-legends.xml";
-        var absXmlPlusFile = @"C:\Users\Thomas Svoboda\source\repos\LegendsViewer-Next\LegendsViewer.Backend.Tests\TestData\Xah_Atho-00005-01-01-legends_plus.xml";
-        _xmlFile = absXmlFile;
-        _xmlPlusFile = absXmlPlusFile;
+        // Find the solution root by traversing up from the current directory
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir != null && !File.Exists(Path.Combine(dir.FullName, "LegendsViewer.sln")))
+        {
+            dir = dir.Parent;
+        }
+        if (dir == null)
+            throw new DirectoryNotFoundException("Could not find solution root (LegendsViewer-Next.sln)");
+        var testDataDir = Path.Combine(dir.FullName, "LegendsViewer.Backend.Tests", "TestData");
+        _xmlFile = Path.Combine(testDataDir, "Xah_Atho-00005-01-01-legends.xml");
+        _xmlPlusFile = Path.Combine(testDataDir, "Xah_Atho-00005-01-01-legends_plus.xml");
     }
 
     [IterationSetup]
