@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useWorldStore } from '../stores/worldStore'
 
 const routes = [
   { path: '/', name: 'Overview', component: () => import('../views/WorldOverview.vue') },
@@ -81,6 +82,28 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+})
+
+// Update the document title on each navigation.
+// Default format: <RouteName> - <ObjectName>.
+// For the World route: show the loaded world's name (fallback to 'World').
+router.afterEach((to) => {
+  const routeName = typeof to.name === 'string' ? to.name : ''
+  let worldName: string | undefined
+  try {
+    const worldStore = useWorldStore()
+    worldName = (worldStore.world?.name ?? undefined) as string | undefined
+  } catch (e) {
+    worldName = undefined
+  }
+
+  if (routeName === 'World') {
+    document.title = worldName ?? 'World'
+    return
+  }
+
+  const title = `${worldName ? worldName + ' - ' : ''}${routeName || 'Legends Viewer'}`
+  document.title = title
 })
 
 export default router;

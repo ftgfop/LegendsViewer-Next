@@ -95,6 +95,7 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue';
+import { useWorldStore } from '../stores/worldStore';
 import { useRoute } from 'vue-router';
 import { LoadItemsOptions, LoadItemsSortOption, TableHeader } from '../types/legends';
 import LineChart from '../components/LineChart.vue';
@@ -168,6 +169,19 @@ watch(
     () => route.params.id,
     load
 )
+
+// Update document title for object pages: "<WorldName> - <ObjectName> - <RouteName>"
+watch(() => props.store.object?.name, (name) => {
+    const worldStore = useWorldStore()
+    const worldName = worldStore.world?.name ?? undefined
+    const routeName = typeof route.name === 'string' ? route.name : (props.objectType ?? '')
+
+    if (name) {
+        document.title = `${worldName ? worldName + ' - ' : ''}${name}${routeName ? ' - ' + routeName : ''}`
+    } else {
+        document.title = `${worldName ? worldName + ' - ' : ''}${routeName || 'Legends Viewer'}`
+    }
+}, { immediate: true })
 
 </script>
 

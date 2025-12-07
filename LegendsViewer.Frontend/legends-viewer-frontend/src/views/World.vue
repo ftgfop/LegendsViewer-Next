@@ -4,7 +4,7 @@ import { useWorldMapStore } from '../stores/mapStore';
 import DoughnutChart from '../components/DoughnutChart.vue';
 import LegendsCardList from '../components/LegendsCardList.vue';
 import CivilizationsCardList from '../components/CivilizationsCardList.vue';
-import { computed, ComputedRef } from 'vue';
+import { computed, ComputedRef, watch } from 'vue';
 import { LegendLinkListData, LoadItemsOptions, TableHeader } from '../types/legends';
 import ExpandableCard from '../components/ExpandableCard.vue';
 import LineChart from '../components/LineChart.vue';
@@ -16,6 +16,10 @@ const mapStore = useWorldMapStore()
 store.loadWorld();
 store.loadEventChartData()
 store.loadEventTypeChartData()
+// Keep the browser tab title updated when the world's name becomes available
+watch(() => store.world?.name, (name) => {
+    document.title = name ?? 'World'
+}, { immediate: true })
 mapStore.loadWorldMap('Default');
 
 const lists: ComputedRef<LegendLinkListData[]> = computed(() => [
